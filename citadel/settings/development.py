@@ -25,3 +25,9 @@ if os.getenv("RATE_LIMIT_BACKEND", "memory") == "memory" or not os.getenv("REDIS
             "LOCATION": "citadel-dev",
         }
     }
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    }
+}

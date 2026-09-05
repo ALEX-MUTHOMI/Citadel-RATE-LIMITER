@@ -1,42 +1,46 @@
 services:
   postgres:
     image: postgres:16-alpine
+    container_name: citadel-postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-citadel}
       POSTGRES_USER: ${POSTGRES_USER:-citadel}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-citadel}
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - citadel_pg:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-citadel}"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-citadel} -d ${POSTGRES_DB:-citadel}"]
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   redis:
     image: redis:7-alpine
+    container_name: citadel-redis
     ports:
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:6380:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   api:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: citadel-api
     environment:
       DJANGO_SETTINGS_MODULE: citadel.settings.development
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-dev-only-insecure-key}
-      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,api}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,api,0.0.0.0}
       POSTGRES_DB: ${POSTGRES_DB:-citadel}
       POSTGRES_USER: ${POSTGRES_USER:-citadel}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-citadel}
       POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
       REDIS_URL: redis://redis:6379/0
       RATE_LIMIT_BACKEND: redis
       CITADEL_API_TOKEN: ${CITADEL_API_TOKEN:-}
@@ -51,6 +55,7 @@ services:
 
   toxiproxy:
     image: ghcr.io/shopify/toxiproxy:2.11.0
+    profiles: ["tools"]
     command: ["-host=0.0.0.0", "-config=/config/toxiproxy.json"]
     volumes:
       - ./docker/toxiproxy/config.json:/config/toxiproxy.json:ro

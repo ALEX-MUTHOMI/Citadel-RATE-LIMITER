@@ -66,14 +66,17 @@ copy .env.example .env
 docker compose up --build
 ```
 
+This starts **api**, **postgres**, and **redis** (`citadel-api`, `citadel-postgres`, `citadel-redis` in Docker Desktop). GitHub Actions publishes the image with `vars.DOCKERHUB_USERNAME` and `secrets.DOCKERHUB_TOKEN`. Re-save the token in GitHub if login fails: no quotes, no extra spaces.
+
+Host ports: API `8000`, Postgres `5433`, Redis `6380` (5432/6379 are often already in use on Windows).
+
 | Service | URL |
 | --- | --- |
 | Rate limiter API | http://localhost:8000 |
 | Health | http://localhost:8000/health/ |
 | OpenAPI docs | http://localhost:8000/api/docs/ |
-| Toxiproxy API | http://localhost:8474 |
-| Toxiproxy to API | http://localhost:18080 |
-| OWASP ZAP (optional) | `docker compose --profile security up zap` then http://127.0.0.1:8090 |
+| Postgres | localhost:5433 |
+| Redis | localhost:6380 |
 
 ## Connect another project
 

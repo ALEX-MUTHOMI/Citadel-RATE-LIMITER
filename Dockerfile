@@ -12,16 +12,16 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && pip install --no-cache-dir poetry
 
-COPY pyproject.toml ./
+COPY pyproject.toml poetry.lock ./
 RUN poetry install --only main --no-interaction --no-ansi --no-root
 
 COPY . .
-RUN poetry install --only main --no-interaction --no-ansi \
+RUN sed -i 's/\r$//' docker/entrypoint.sh \
     && chmod +x docker/entrypoint.sh
 
 EXPOSE 8000
 
-HEALTHCHECK --interval=20s --timeout=5s --retries=5 \
+HEALTHCHECK --interval=15s --timeout=5s --start-period=45s --retries=8 \
     CMD curl -fsS http://127.0.0.1:8000/health/ || exit 1
 
-ENTRYPOINT ["./docker/entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "/app/docker/entrypoint.sh"]
