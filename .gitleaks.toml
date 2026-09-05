@@ -1,0 +1,15 @@
+title = "Citadel Rate Limiter"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Local placeholders and lockfiles are not live credentials"
+paths = [
+  '''(^|/)\.env\.example$''',
+  '''(^|/)requirements/.*\.txt$''',
+  '''(^|/)poetry\.lock$''',
+]
+regexes = [
+  '''dev-only-insecure-key''',
+]

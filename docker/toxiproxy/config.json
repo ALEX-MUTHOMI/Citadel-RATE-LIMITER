@@ -1,0 +1,8 @@
+[
+  {
+    "name": "citadel-api",
+    "listen": "[::]:18080",
+    "upstream": "api:8000",
+    "enabled": true
+  }
+]

@@ -1,0 +1,54 @@
+[project]
+name = "citadel-rate-limiter"
+version = "0.1.0"
+description = "Shared Django REST rate limiter for connecting Citadel projects."
+authors = [
+    { name = "ALEX-MUTHOMI" }
+]
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "django>=5.2,<6.0",
+    "djangorestframework>=3.16,<4.0",
+    "django-cors-headers>=4.7,<5.0",
+    "django-redis>=5.4,<6.0",
+    "drf-spectacular>=0.28,<1.0",
+    "gunicorn>=23.0,<24.0",
+    "httpx>=0.28,<1.0",
+    "psycopg[binary]>=3.2,<4.0",
+    "python-dotenv>=1.1,<2.0",
+    "redis>=5.2,<6.0",
+    "ShopifyAPI>=12.7,<13.0",
+    "whitenoise>=6.9,<7.0",
+]
+
+[project.scripts]
+citadel-dsa = "limiter.dsa.cli:main"
+
+[tool.poetry]
+packages = [
+    { include = "citadel" },
+    { include = "limiter" },
+]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3"
+pytest-django = "^4.10"
+ruff = "^0.12"
+coverage = "^7.8"
+
+[build-system]
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "citadel.settings.development"
+python_files = ["tests.py", "test_*.py"]
+addopts = "-q --reuse-db"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]

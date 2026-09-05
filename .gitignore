@@ -2,6 +2,18 @@
 .env
 .env.*
 !.env.example
+docker/secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_dsa
+credentials.json
+secrets.json
+auth.json
+*.token
+*.secrets
 
 # Python
 __pycache__/
@@ -14,14 +26,18 @@ venv/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+htmlcov/
+*.sqlite3
+staticfiles/
 
-# Node
-node_modules/
+# Poetry
 dist/
-build/
-coverage/
+poetry.toml
+
+# Docker / security tools
+zap-reports/
 *.log
-npm-debug.log*
 
 # OS / editor
 .DS_Store

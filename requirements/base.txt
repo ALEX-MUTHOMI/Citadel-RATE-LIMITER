@@ -1,0 +1,12 @@
+django>=5.2,<6.0
+djangorestframework>=3.16,<4.0
+django-cors-headers>=4.7,<5.0
+django-redis>=5.4,<6.0
+drf-spectacular>=0.28,<1.0
+gunicorn>=23.0,<24.0
+httpx>=0.28,<1.0
+psycopg[binary]>=3.2,<4.0
+python-dotenv>=1.1,<2.0
+redis>=5.2,<6.0
+ShopifyAPI>=12.7,<13.0
+whitenoise>=6.9,<7.0
