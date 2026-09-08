@@ -53,6 +53,39 @@ services:
       redis:
         condition: service_healthy
 
+  # -----------------------------------------------------------------------
+  # Test runner — bypasses the gunicorn entrypoint and runs pytest directly.
+  # Usage:
+  #   docker compose run --rm test                        # all tests
+  #   docker compose run --rm test tests/test_dsa.py -v   # specific file
+  # -----------------------------------------------------------------------
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    entrypoint: ["python", "-m", "pytest"]
+    command: ["-v"]
+    environment:
+      DJANGO_SETTINGS_MODULE: citadel.settings.development
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-dev-only-insecure-key}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,api}
+      POSTGRES_DB: ${POSTGRES_DB:-citadel}
+      POSTGRES_USER: ${POSTGRES_USER:-citadel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-citadel}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      REDIS_URL: redis://redis:6379/0
+      RATE_LIMIT_BACKEND: memory
+      CITADEL_API_TOKEN: ${CITADEL_API_TOKEN:-test-token}
+      CITADEL_BOOTSTRAP_CLIENT: ${CITADEL_BOOTSTRAP_CLIENT:-local-docker}
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   toxiproxy:
     image: ghcr.io/shopify/toxiproxy:2.11.0
     profiles: ["tools"]
