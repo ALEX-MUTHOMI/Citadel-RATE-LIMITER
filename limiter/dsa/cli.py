@@ -12,6 +12,12 @@ def main(argv: list[str] | None = None) -> int:
         choices=["token_bucket", "sliding_window", "shopify_leaky_bucket"],
         default="token_bucket",
     )
+    parser.add_argument(
+        "--variant",
+        choices=["log", "counter"],
+        default="log",
+        help="Sliding window variant: 'log' (exact, default) or 'counter' (Cloudflare O(1))",
+    )
     parser.add_argument("--requests", type=int, default=20)
     parser.add_argument("--capacity", type=float, default=10)
     parser.add_argument("--rate", type=float, default=2.0)
@@ -19,7 +25,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.algorithm == "sliding_window":
-        limiter = SlidingWindow(capacity=int(args.capacity), window_seconds=args.window)
+        limiter = SlidingWindow(
+            capacity=int(args.capacity),
+            window_seconds=args.window,
+            variant=args.variant,
+        )
     elif args.algorithm == "shopify_leaky_bucket":
         limiter = ShopifyLeakyBucket(capacity=args.capacity, restore_rate=args.rate)
     else:
@@ -30,10 +40,12 @@ def main(argv: list[str] | None = None) -> int:
         decision = limiter.allow(1)
         allowed += int(decision.allowed)
         state = "ALLOW" if decision.allowed else "DENY"
-        print(f"{index + 1:03d} {state} remaining={decision.remaining:.2f}")
+        retry = f" retry_after={decision.retry_after:.2f}s" if not decision.allowed else ""
+        print(f"{index + 1:03d} {state} remaining={decision.remaining:.2f}{retry}")
     print(f"allowed={allowed} denied={args.requests - allowed}")
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
