@@ -13,7 +13,15 @@ RUN apt-get update \
     && pip install --no-cache-dir poetry
 
 COPY pyproject.toml poetry.lock ./
+# Production dependencies — heavy layer, cached independently.
 RUN poetry install --only main --no-interaction --no-ansi --no-root
+
+# Dev/test packages (pure Python — no compiled extensions).
+# Install separately so the prod layer above stays cached even on retry.
+# Retry flags guard against Docker Desktop / PyPI network blips on Windows.
+RUN pip install --no-cache-dir \
+        --retries 10 --timeout 180 \
+        "pytest>=8.3,<9" "pytest-django>=4.10,<5" "coverage>=7.8,<8"
 
 COPY . .
 RUN sed -i 's/\r$//' docker/entrypoint.sh \
